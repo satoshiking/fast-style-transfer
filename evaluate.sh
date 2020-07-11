@@ -1,3 +1,3 @@
 #! /bin/bash
 
-python evaluate.py --checkpoint models/scream.ckpt --in-path input/ --out-path output/ --allow-different-dimensions
+python fast-style-transfer/evaluate.py --checkpoint fast-style-transfer/models/scream.ckpt --in-path fast-style-transfer/input/ --out-path fast-style-transfer/output/ --allow-different-dimensions
