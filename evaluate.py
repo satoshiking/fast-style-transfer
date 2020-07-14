@@ -1,25 +1,19 @@
 from __future__ import print_function
-import sys
-# sys.path.insert(0, 'src')
+import os
+import time
 import src.transform as transform
-import  numpy as np, src.vgg, pdb, os
-import scipy.misc
+import numpy as np
 import tensorflow as tf
 from src.utils import save_img, get_img, exists, list_files
 from argparse import ArgumentParser
 from collections import defaultdict
-import time
-import json
-import subprocess
-import numpy
-# from moviepy.video.io.VideoFileClip import VideoFileClip
-# import moviepy.video.io.ffmpeg_writer as ffmpeg_writer
 
 BATCH_SIZE = 4
 DEVICE = '/gpu:0'
 
 
 def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
+    start_ffwd = time.time()
     assert len(paths_out) > 0
     is_paths = type(data_in[0]) == str
     if is_paths:
@@ -31,7 +25,6 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
 
     g = tf.Graph()
     batch_size = min(len(paths_out), batch_size)
-    curr_num = 0
     soft_config = tf.compat.v1.ConfigProto(allow_soft_placement=True)
     soft_config.gpu_options.allow_growth = True
     with g.as_default(), g.device(device_t), \
@@ -76,6 +69,9 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
     if len(remaining_in) > 0:
         ffwd(remaining_in, remaining_out, checkpoint_dir, 
             device_t=device_t, batch_size=1)
+    time_needed = time.time() - start_ffwd
+    print("ffwd function worked {:.4} seconds, file={}  shape={}".format(time_needed, 0, img_shape))
+
 
 def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0'):
     paths_in, paths_out = [in_path], [out_path]
@@ -155,8 +151,7 @@ def main():
             ffwd_different_dimensions(full_in, full_out, opts.checkpoint_dir, 
                     device_t=opts.device, batch_size=opts.batch_size)
         else :
-            ffwd(full_in, full_out, opts.checkpoint_dir, device_t=opts.device,
-                    batch_size=opts.batch_size)
+            ffwd(full_in, full_out, opts.checkpoint_dir, device_t=opts.device, batch_size=opts.batch_size)
 
 if __name__ == '__main__':
     start = time.time()
